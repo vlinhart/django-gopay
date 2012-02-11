@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import settings
 import utils
 
 PAYMENT_COMMAND = {
@@ -28,33 +29,36 @@ RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 class TestGoPay(unittest.TestCase):
+    crypt = utils.Crypt()
+    concat = utils.Concat()
+
     def test_concat_commands(self):
         expected_result = '1|test|100|235|http://tolary.cz|http://tolary.cz|111111111111111111111111'
-        result = utils.concat_payment_command(secret=SECRET, **PAYMENT_COMMAND)
+        result = utils.Concat(secret=SECRET).command(utils.Concat.PAYMENT, PAYMENT_COMMAND)
         self.assertEqual(expected_result, result)
 
         expected_result = '8363419680|test|100|235|CALL_COMPLETED|WAITING|111111111111111111111111'
-        result = utils.concat_for_validation(secret=SECRET, **utils.parse_xml_to_dict(RESPONSE))
+        result = utils.Concat(secret=SECRET).command(utils.Concat.PAYMENT_RESULT, utils.parse_xml_to_dict(RESPONSE))
         self.assertEqual(expected_result, result)
 
 
     def test_encryption_methods_equal(self):
-        command = utils.concat_payment_command(**PAYMENT_COMMAND)
-        signature_pycrypt = utils.encrypt(command)
-        signature_pydes = utils.encrypt_pydes(command)
+        command = self.concat.command(utils.Concat.PAYMENT, PAYMENT_COMMAND)
+        signature_pycrypt = self.crypt.encrypt(command)
+        signature_pydes = self.crypt.encrypt_pydes(command)
         self.assertEqual(signature_pycrypt, signature_pydes)
 
     def test_decryption_methods_equal(self):
         response = utils.parse_xml_to_dict(RESPONSE)
-        pycrypt = utils.decrypt(response['encryptedSignature'])
-        pydes = utils.decrypt_pydes(response['encryptedSignature'])
+        pycrypt = self.crypt.decrypt(response['encryptedSignature'])
+        pydes = self.crypt.decrypt_pydes(response['encryptedSignature'])
         self.assertEqual(pycrypt, pydes)
 
     def test_decrypt(self):
         response = utils.parse_xml_to_dict(RESPONSE)
-        response_cmd = utils.concat_for_validation(**response)
-        hashed_cmd = utils.hash(response_cmd)
-        decrypted = utils.decrypt(response['encryptedSignature'])
+        response_cmd = self.concat.command(utils.Concat.PAYMENT_RESULT, response)
+        hashed_cmd = self.crypt.hash(response_cmd)
+        decrypted = self.crypt.decrypt(response['encryptedSignature'])
         self.assertEqual(hashed_cmd, decrypted)
 
 
@@ -63,10 +67,9 @@ class TestGoPay(unittest.TestCase):
         self.assertEqual(response_dict['productName'], PAYMENT_COMMAND['productName'])
 
     def test_validate_response(self):
-        self.assertTrue(utils.validate_xml_response(RESPONSE))
+        self.assertEqual(utils.ValidateResponse(RESPONSE).payment(),None)
 
     def test_create_redirect_cmd(self):
-        self.assertEqual(
-            'https://testgw.gopay.cz/prima-integrace?sessionInfo.eshopGoId=8363419680&sessionInfo.encryptedSignature=7d9405a3f474e843a5f61c271f632a2899470f5623a18189941f0b86396699eebe6f77d937e960e3&sessionInfo.paymentSessionId=3000841324'
+        self.assertEqual(settings.GOPAY_REDIRECT_URL+'?sessionInfo.eshopGoId=8363419680&sessionInfo.encryptedSignature=7d9405a3f474e843a5f61c271f632a2899470f5623a18189941f0b86396699eebe6f77d937e960e3&sessionInfo.paymentSessionId=3000841324'
             ,
             utils.create_redirect_url('3000841324'))
