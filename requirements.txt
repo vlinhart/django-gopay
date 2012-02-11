@@ -1,0 +1,5 @@
+requests
+pycrypto
+
+#if you prefer this for DES3 against pycrypto
+#pyDes
