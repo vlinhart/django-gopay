@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import settings
+from django.conf import settings
 
 PAYMENT_DONE = "PAYMENT_DONE"
 CANCELED = "CANCELED"
@@ -21,3 +21,11 @@ PAYMENT_COMMAND = {
 PREFIX_CMD_PAYMENT = 'paymentCommand.'
 PREFIX_CMD_PAYMENT_RESULT = 'paymentSessionInfo.'
 PREFIX_CMD_REDIRECT_URL = 'sessionInfo.'
+
+GOPAY_NEW_PAYMENT_URL_TEST = 'https://testgw.gopay.cz/vytvorit-platbu'
+GOPAY_REDIRECT_URL_TEST = 'https://testgw.gopay.cz/zaplatit-plna-integrace'
+GOPAY_PAYMENT_STATUS_URL_TEST = 'https://testgw.gopay.cz/stav-platby-gw2'
+
+GOPAY_NEW_PAYMENT_URL = 'https://gate.gopay.cz/vytvorit-platbu'
+GOPAY_REDIRECT_URL = 'https://gate.gopay.cz/zaplatit-plna-integrace'
+GOPAY_PAYMENT_STATUS_URL = 'https://gate.gopay.cz/stav-platby-gw2'

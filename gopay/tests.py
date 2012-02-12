@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
-import settings
 import utils
+import const
 
 PAYMENT_COMMAND = {
     'successURL': 'http://tolary.cz',
@@ -95,6 +95,6 @@ class TestGoPay(unittest.TestCase):
 
     def test_create_redirect_cmd(self):
         self.assertEqual(
-            settings.GOPAY_REDIRECT_URL_TEST + '?sessionInfo.eshopGoId=8363419680&sessionInfo.encryptedSignature=7d9405a3f474e843a5f61c271f632a2899470f5623a18189941f0b86396699eebe6f77d937e960e3&sessionInfo.paymentSessionId=3000841324'
+            const.GOPAY_REDIRECT_URL_TEST + '?sessionInfo.eshopGoId=8363419680&sessionInfo.encryptedSignature=7d9405a3f474e843a5f61c271f632a2899470f5623a18189941f0b86396699eebe6f77d937e960e3&sessionInfo.paymentSessionId=3000841324'
             ,
             utils.create_redirect_url('3000841324'))

@@ -5,8 +5,9 @@ from hashlib import sha1
 from binascii import unhexlify
 import xml.etree.ElementTree as ET
 import urllib
+from django.conf import settings
 import const
-import settings
+
 
 class ValidationException(Exception):
     pass
@@ -21,7 +22,7 @@ class Concat(object):
                              'paymentChannel', 'secret']
     PAYMENT_NOTIFICATION = ['eshopGoId', 'paymentSessionId', 'variableSymbol', 'secret']
 
-    def __init__(self, secret=settings.SECRET):
+    def __init__(self, secret=settings.GOPAY_SECRET):
         self.secret = secret
 
     def __call__(self, command, data):
@@ -57,13 +58,13 @@ def create_redirect_url(paymentSessionId):
     concat_cmd = Concat().command(Concat.REDIRECT, cmd)
     cmd['encryptedSignature'] = Crypt().encrypt(concat_cmd)
     cmd = prefix_command_keys(cmd, prefix=const.PREFIX_CMD_REDIRECT_URL)
-    return settings.GOPAY_REDIRECT_URL_TEST + '?' + urllib.urlencode(cmd)
+    return const.GOPAY_REDIRECT_URL_TEST + '?' + urllib.urlencode(cmd)
 
 
 class Crypt(object):
     """ takes care of hashing, encryption and decrypting of commands"""
 
-    def __init__(self, secret=settings.SECRET):
+    def __init__(self, secret=settings.GOPAY_SECRET):
         self.secret = secret
 
     def hash(self, string):
@@ -109,7 +110,7 @@ class CommandsValidator(object):
 
 
     def _basic_result_validation(self):
-#        print self.response
+    #        print self.response
         if self.response['result'] != const.CALL_COMPLETED:
             raise ValidationException(
                 u'wrong result: %s - %s' % (self.response['result'], self.response['resultDescription']))
@@ -136,3 +137,6 @@ class CommandsValidator(object):
         response_cmd = self.concat(Concat.PAYMENT_NOTIFICATION, self.response)
         self._signature_validation(response_cmd)
 
+
+def notification_callback(params):
+    print params
