@@ -17,3 +17,7 @@ PAYMENT_COMMAND = {
     'variableSymbol': '235',
     'totalPrice': 100,
     }
+
+PREFIX_CMD_PAYMENT = 'paymentCommand.'
+PREFIX_CMD_PAYMENT_RESULT = 'paymentSessionInfo.'
+PREFIX_CMD_REDIRECT_URL = 'sessionInfo.'

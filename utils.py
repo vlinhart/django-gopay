@@ -19,9 +19,14 @@ class Concat(object):
     PAYMENT_STATUS = ['eshopGoId', 'paymentSessionId', 'secret']
     PAYMENT_STATUS_RESULT = ['eshopGoId', 'productName', 'totalPrice', 'variableSymbol', 'result', 'sessionState',
                              'paymentChannel', 'secret']
+    PAYMENT_NOTIFICATION = ['eshopGoId', 'paymentSessionId', 'variableSymbol', 'secret']
 
     def __init__(self, secret=settings.SECRET):
         self.secret = secret
+
+    def __call__(self, command, data):
+        """instance can be called with the same result asi calling command method"""
+        return self.command(command, data)
 
     def command(self, keys, data):
         cp_data = copy(data)
@@ -51,11 +56,13 @@ def create_redirect_url(paymentSessionId):
     cmd = dict(eshopGoId=settings.ESHOP_GOID, paymentSessionId=paymentSessionId)
     concat_cmd = Concat().command(Concat.REDIRECT, cmd)
     cmd['encryptedSignature'] = Crypt().encrypt(concat_cmd)
-    cmd = prefix_command_keys(cmd, prefix='sessionInfo.')
-    return settings.GOPAY_REDIRECT_URL + '?' + urllib.urlencode(cmd)
+    cmd = prefix_command_keys(cmd, prefix=const.PREFIX_CMD_REDIRECT_URL)
+    return settings.GOPAY_REDIRECT_URL_TEST + '?' + urllib.urlencode(cmd)
 
 
 class Crypt(object):
+    """ takes care of hashing, encryption and decrypting of commands"""
+
     def __init__(self, secret=settings.SECRET):
         self.secret = secret
 
@@ -92,36 +99,40 @@ class Crypt(object):
         return des.decrypt(unhexlify(encrypted_data)).rstrip('\x00')
 
 
-class ValidateResponse(object):
+class CommandsValidator(object):
     concat = Concat()
 
-    def __init__(self, xml_response):
+    def __init__(self, xml_response, data=None):
         self.xml = xml_response
-        self.response = parse_xml_to_dict(xml_response)
+        self.response = data if data else parse_xml_to_dict(xml_response)
         self.crypt = Crypt()
 
 
-    def basic_result_validation(self):
-        print self.response
+    def _basic_result_validation(self):
+#        print self.response
         if self.response['result'] != const.CALL_COMPLETED:
-            raise ValidationException(u'wrong result: %s' % self.response['result'])
+            raise ValidationException(
+                u'wrong result: %s - %s' % (self.response['result'], self.response['resultDescription']))
 
-    def signature_validation(self, response_cmd):
+    def _signature_validation(self, response_cmd):
         hashed_cmd = self.crypt.hash(response_cmd)
         decrypted = self.crypt.decrypt(self.response['encryptedSignature'])
         if not decrypted == hashed_cmd:
             raise ValidationException(u'wrong signature')
 
     def payment(self):
-        self.basic_result_validation()
-        response_cmd = self.concat.command(Concat.PAYMENT_RESULT, self.response)
-        self.signature_validation(response_cmd)
+        self._basic_result_validation()
+        response_cmd = self.concat(Concat.PAYMENT_RESULT, self.response)
+        self._signature_validation(response_cmd)
 
-    def payment_status(self): #TODO if the payment isn't successful there is no paymentChannel ->dies
-        self.basic_result_validation()
-        response_cmd = self.concat.command(Concat.PAYMENT_STATUS_RESULT, self.response)
-        self.signature_validation(response_cmd)
+    def payment_status(self):
+        self._basic_result_validation()
+        if 'paymentChannel' not in self.response:
+            self.response['paymentChannel'] = '' #strange but necessary
+        response_cmd = self.concat(Concat.PAYMENT_STATUS_RESULT, self.response)
+        self._signature_validation(response_cmd)
 
-
-
+    def payment_notification(self):
+        response_cmd = self.concat(Concat.PAYMENT_NOTIFICATION, self.response)
+        self._signature_validation(response_cmd)
 

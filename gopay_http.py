@@ -4,41 +4,49 @@ import const
 import utils
 import settings
 
+#TODO notification from gopay
+
 class Payment(object):
     def __init__(self, secret=settings.SECRET):
         self.crypt = utils.Crypt(secret=secret)
         self.concat = utils.Concat(secret=secret)
 
-    def create_payment(self, payment_data):
-        payment_string = self.concat.command(utils.Concat.PAYMENT, payment_data)
-        payment_data['encryptedSignature'] = self.crypt.encrypt(payment_string)
-        payment_data = utils.prefix_command_keys(payment_data, 'paymentCommand.')
-        r = requests.post(settings.GOPAY_NEW_PAYMENT_URL, data=payment_data, verify=False) #TODO verify ssl?
+    def create_payment(self, cmd):
+        payment_string = self.concat(utils.Concat.PAYMENT, cmd)
+        cmd['encryptedSignature'] = self.crypt.encrypt(payment_string)
+        cmd = utils.prefix_command_keys(cmd, const.PREFIX_CMD_PAYMENT)
+        r = requests.post(settings.GOPAY_NEW_PAYMENT_URL_TEST, data=cmd, verify=settings.VERIFY_SSL)
 
         if r.status_code != 200:
             raise utils.ValidationException(u'wrong status code: %s' % r.status_code)
-        utils.ValidateResponse(r.content).payment()
+        utils.CommandsValidator(r.content).payment()
 
         response = utils.parse_xml_to_dict(r.content)
-        print response
+#        print response
         return response['paymentSessionId']
 
 
     def verify_payment_status(self, paymentSessionId):
-        cmd = dict(eshopGoId=settings.ESHOP_GOID, paymentSessionId=paymentSessionId)
-        concat_cmd = self.concat.command(utils.Concat.PAYMENT_STATUS, cmd)
-        cmd['encryptedSignature'] = self.crypt.encrypt(concat_cmd)
-        cmd = utils.prefix_command_keys(cmd, prefix='paymentSessionInfo.')
-        r = requests.post(settings.GOPAY_PAYMENT_STATUS_URL, data=cmd, verify=False) #TODO verify ssl?
+        """tells if the payment was successful or not, returns tuple (success, whole response)"""
 
+        cmd = dict(eshopGoId=settings.ESHOP_GOID, paymentSessionId=paymentSessionId)
+        concat_cmd = self.concat(utils.Concat.PAYMENT_STATUS, cmd)
+        cmd['encryptedSignature'] = self.crypt.encrypt(concat_cmd)
+        cmd = utils.prefix_command_keys(cmd, prefix=const.PREFIX_CMD_PAYMENT_RESULT)
+        r = requests.post(settings.GOPAY_PAYMENT_STATUS_URL_TEST, data=cmd, verify=settings.VERIFY_SSL)
+        #        print r.content
         if r.status_code != 200:
             raise utils.ValidationException(u'wrong status code: %s' % r.status_code)
-        utils.ValidateResponse(r.content).payment_status()
+        utils.CommandsValidator(r.content).payment_status()
         response = utils.parse_xml_to_dict(r.content)
-        print response
+#        print response
+        return response['sessionState'] == const.PAYMENT_DONE, response
 
-        #TODO check the result and do somethin
 
+    def payment_status_notification_validation(self, params):
+        """ params is dict with GET params from GoPay, if signature is not OK, raises ValidationException """
+
+        utils.CommandsValidator(xml_response=None, data=params).payment_notification()
 
 if __name__ == '__main__':
     p = Payment()
@@ -46,5 +54,5 @@ if __name__ == '__main__':
 #    paymentSessionId = p.create_payment(const.PAYMENT_COMMAND)
 #    print 'paymentSessionId', paymentSessionId
 #    print utils.create_redirect_url(paymentSessionId)
-    p.verify_payment_status('3000842143')
+    p.verify_payment_status('3000842403')
 
