@@ -13,8 +13,10 @@ def require_settings(name):
     except AttributeError:
         raise ImproperlyConfigured("GOPAY: You must set the '%s' in settings file." % name)
 
-require_settings('ESHOP_GOID')
+require_settings('GOPAY_ESHOP_GOID')
 require_settings('GOPAY_SECRET')
+require_settings('GOPAY_SUCCESS_URL')
+require_settings('GOPAY_FAILED_URL')
 
 
 # take the function from settings, default one is provided, does nothing :-)

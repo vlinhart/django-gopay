@@ -6,6 +6,8 @@ from binascii import unhexlify
 import xml.etree.ElementTree as ET
 import urllib
 from django.conf import settings
+from django.http import HttpResponse
+from django.shortcuts import render
 import const
 
 
@@ -26,7 +28,7 @@ class Concat(object):
         self.secret = secret
 
     def __call__(self, command, data):
-        """instance can be called with the same result asi calling command method"""
+        """instance can be called with the same result as calling command method"""
         return self.command(command, data)
 
     def command(self, keys, data):
@@ -36,29 +38,6 @@ class Concat(object):
 
     def concat_bits(self, bits):
         return '|'.join([bit if isinstance(bit, basestring) else str(bit) for bit in bits])
-
-
-def prefix_command_keys(command, prefix):
-    prefixed = {}
-    for k, v in command.items():
-        prefixed[prefix + k] = v
-    return prefixed
-
-
-def parse_xml_to_dict(xml):
-    tree = ET.XML(xml)
-    response_dict = {}
-    for e in tree:
-        response_dict[e.tag] = e.text
-    return response_dict
-
-
-def create_redirect_url(paymentSessionId):
-    cmd = dict(eshopGoId=settings.ESHOP_GOID, paymentSessionId=paymentSessionId)
-    concat_cmd = Concat().command(Concat.REDIRECT, cmd)
-    cmd['encryptedSignature'] = Crypt().encrypt(concat_cmd)
-    cmd = prefix_command_keys(cmd, prefix=const.PREFIX_CMD_REDIRECT_URL)
-    return const.GOPAY_REDIRECT_URL_TEST + '?' + urllib.urlencode(cmd)
 
 
 class Crypt(object):
@@ -138,5 +117,34 @@ class CommandsValidator(object):
         self._signature_validation(response_cmd)
 
 
-def notification_callback(params):
-    print params
+def prefix_command_keys(command, prefix):
+    prefixed = {}
+    for k, v in command.items():
+        prefixed[prefix + k] = v
+    return prefixed
+
+
+def parse_xml_to_dict(xml):
+    tree = ET.XML(xml)
+    response_dict = {}
+    for e in tree:
+        response_dict[e.tag] = e.text
+    return response_dict
+
+
+def create_redirect_url(paymentSessionId):
+    cmd = dict(eshopGoId=settings.GOPAY_ESHOP_GOID, paymentSessionId=paymentSessionId)
+    concat_cmd = Concat().command(Concat.REDIRECT, cmd)
+    cmd['encryptedSignature'] = Crypt().encrypt(concat_cmd)
+    cmd = prefix_command_keys(cmd, prefix=const.PREFIX_CMD_REDIRECT_URL)
+    return const.GOPAY_REDIRECT_URL_TEST + '?' + urllib.urlencode(cmd)
+
+
+def notification_callback(request, paid_ok, type, paymentSessionId, variableSymbol):
+    """ do some order processing here based on arguments """
+
+    if paid_ok:
+        pass #process the payment
+    else:
+        pass #process the failure
+    return render(request, "gopay/%s.html" % type, locals())

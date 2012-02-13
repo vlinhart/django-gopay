@@ -13,7 +13,7 @@ PAYMENT_COMMAND = {
     'successURL': 'http://tolary.cz',
     'failedURL': 'http://tolary.cz',
     'productName': 'test',
-    'eshopGoId': settings.ESHOP_GOID,
+    'eshopGoId': settings.GOPAY_ESHOP_GOID,
     'variableSymbol': '235',
     'totalPrice': 100,
     }

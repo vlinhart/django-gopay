@@ -11,7 +11,8 @@ class Payment(object):
         self.crypt = utils.Crypt(secret=secret)
         self.concat = utils.Concat(secret=secret)
 
-    def create_payment(self, cmd):
+    def create_payment(self, productName, variableSymbol, totalPriceInCents):
+        cmd = self._create_payment_cmd(productName, variableSymbol, totalPriceInCents)
         payment_string = self.concat(utils.Concat.PAYMENT, cmd)
         cmd['encryptedSignature'] = self.crypt.encrypt(payment_string)
         cmd = utils.prefix_command_keys(cmd, const.PREFIX_CMD_PAYMENT)
@@ -29,7 +30,7 @@ class Payment(object):
     def verify_payment_status(self, paymentSessionId):
         """tells if the payment was successful or not, returns tuple (success, whole response)"""
 
-        cmd = dict(eshopGoId=settings.ESHOP_GOID, paymentSessionId=paymentSessionId)
+        cmd = dict(eshopGoId=settings.GOPAY_ESHOP_GOID, paymentSessionId=paymentSessionId)
         concat_cmd = self.concat(utils.Concat.PAYMENT_STATUS, cmd)
         cmd['encryptedSignature'] = self.crypt.encrypt(concat_cmd)
         cmd = utils.prefix_command_keys(cmd, prefix=const.PREFIX_CMD_PAYMENT_RESULT)
@@ -48,11 +49,28 @@ class Payment(object):
 
         utils.CommandsValidator(xml_response=None, data=params).payment_notification()
 
-if __name__ == '__main__':
+    def _create_payment_cmd(self, productName, variableSymbol, totalPrice):
+        return {
+            'successURL': settings.GOPAY_SUCCESS_URL,
+            'failedURL': settings.GOPAY_FAILED_URL,
+            'productName': productName,
+            'eshopGoId': settings.GOPAY_ESHOP_GOID,
+            'variableSymbol': variableSymbol,
+            'totalPrice': totalPrice, # in cents
+            }
+
+    def get_redirect_url(self, paymentSessionId):
+        return utils.create_redirect_url(paymentSessionId)
+
+
+def test():
     p = Payment()
 
-    #    paymentSessionId = p.create_payment(const.PAYMENT_COMMAND)
-    #    print 'paymentSessionId', paymentSessionId
-    #    print utils.create_redirect_url(paymentSessionId)
-    p.verify_payment_status('3000842403')
+    paymentSessionId = p.create_payment('test', 'VS test', 1)
+    print 'paymentSessionId', paymentSessionId
+    print utils.create_redirect_url(paymentSessionId)
+#    p.verify_payment_status('3000842403')
+
+if __name__ == '__main__':
+    test()
 
