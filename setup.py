@@ -11,19 +11,19 @@ except ImportError:
 import os
 
 setup(
-    name = "django-piston",
-    version = "0.3dev",
-    url = 'http://bitbucket.org/jespern/django-piston/wiki/Home',
-	download_url = 'http://bitbucket.org/jespern/django-piston/downloads/',
+    name = "django-gopay",
+    version = "0.1",
+    url = 'https://github.com/vlinhart/django-gopay',
+	download_url = 'https://github.com/vlinhart/django-gopay/downloads',
     license = 'BSD',
-    description = "Piston is a Django mini-framework creating APIs.",
-    author = 'Jesper Noehr',
-    author_email = 'jesper@noehr.org',
+    description = "Django app to ease gopay payment integration for weary developer.",
+    author = 'Vladimir Linhart',
+    author_email = 'vladimir.linhart@gmail.com',
     packages = find_packages(),
     include_package_data = True,
     zip_safe = False,
     classifiers = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: Alpha',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',

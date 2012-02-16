@@ -10,11 +10,22 @@ It also provides payment status notification callback encryption validation.
 
 There are no SOAP calls implemented, these cover more specific commands which will be implemented later, maybe.
 
-#Installation
+##Installation
     pip install git+git://github.com/vlinhart/django-gopay.git#egg=gopay
+    add 'gopay' to the INSTALLED_APPS.
+    add url(r'^gopay/', include('gopay.urls', namespace="gopay")) to urls.py
 
-* add 'gopay' to the INSTALLED_APPS.
-* add url(r'^gopay/', include('gopay.urls', namespace="gopay")) to urls.py
-* set GOPAY_NOTIFICATION_CALLBACK in settings to your function which will handle gopay notification callback, 
-like this GOPAY_NOTIFICATION_CALLBACK = 'gopay.utils.notification_callback'
+##Configuration
+It's necessary to set several constants in settings.py:
+
+    GOPAY_ESHOP_GOID = your gopay id
+    GOPAY_SECRET = 'your gopay secret'
+    GOPAY_SUCCESS_URL = 'url to which user will be redirected after successful payment on GOPAY'
+    GOPAY_FAILED_URL = 'url to which user will be redirected after failed payment on GOPAY'
+    GOPAY_NOTIFICATION_CALLBACK = 'gopay.utils.notification_callback' more about this later
+    GOPAY_TESTING_MODE = True # set to False if you want the production URLS for gopay
+
+    optional is:
+    GOPAY_VERIFY_SSL = False #if you want the ssl cert of gopay to be checked ala browser set it to True
+
 

@@ -4,7 +4,7 @@ import const
 import utils
 from django.conf import settings
 
-VERIFY_SSL = getattr(settings, 'VERIFY_SSL', False)
+VERIFY_SSL = getattr(settings, 'GOPAY_VERIFY_SSL', False)
 
 class Payment(object):
     def __init__(self, secret=settings.GOPAY_SECRET):
