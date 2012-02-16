@@ -11,7 +11,7 @@ It also provides payment status notification callback encryption validation.
 There are no SOAP calls implemented, these cover more specific commands which will be implemented later, maybe.
 
 #Installation
-    pip install git@github.com:vlinhart/django-gopay.git#gopay
+    pip install git+git://github.com/vlinhart/django-gopay.git#egg=gopay
 
 * add 'gopay' to the INSTALLED_APPS.
 * add url(r'^gopay/', include('gopay.urls', namespace="gopay")) to urls.py

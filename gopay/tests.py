@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import unittest
+from django.test.testcases import TestCase
 import utils
 import const
 
@@ -44,7 +44,7 @@ PAYMENT_STATUS_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
 </ePaymentStatus>
 """
 
-class TestGoPay(unittest.TestCase):
+class TestGoPay(TestCase):
     crypt = utils.Crypt()
     concat = utils.Concat()
 
@@ -95,6 +95,6 @@ class TestGoPay(unittest.TestCase):
 
     def test_create_redirect_cmd(self):
         self.assertEqual(
-            const.GOPAY_REDIRECT_URL_TEST + '?sessionInfo.eshopGoId=8363419680&sessionInfo.encryptedSignature=7d9405a3f474e843a5f61c271f632a2899470f5623a18189941f0b86396699eebe6f77d937e960e3&sessionInfo.paymentSessionId=3000841324'
+            const.GOPAY_REDIRECT_URL + '?sessionInfo.eshopGoId=8363419680&sessionInfo.encryptedSignature=7d9405a3f474e843a5f61c271f632a2899470f5623a18189941f0b86396699eebe6f77d937e960e3&sessionInfo.paymentSessionId=3000841324'
             ,
             utils.create_redirect_url('3000841324'))

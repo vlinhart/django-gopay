@@ -137,7 +137,7 @@ def create_redirect_url(paymentSessionId):
     concat_cmd = Concat().command(Concat.REDIRECT, cmd)
     cmd['encryptedSignature'] = Crypt().encrypt(concat_cmd)
     cmd = prefix_command_keys(cmd, prefix=const.PREFIX_CMD_REDIRECT_URL)
-    return const.GOPAY_REDIRECT_URL_TEST + '?' + urllib.urlencode(cmd)
+    return const.GOPAY_REDIRECT_URL + '?' + urllib.urlencode(cmd)
 
 
 def notification_callback(request, paid_ok, type, paymentSessionId, variableSymbol):

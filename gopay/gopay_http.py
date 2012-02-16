@@ -16,7 +16,7 @@ class Payment(object):
         payment_string = self.concat(utils.Concat.PAYMENT, cmd)
         cmd['encryptedSignature'] = self.crypt.encrypt(payment_string)
         cmd = utils.prefix_command_keys(cmd, const.PREFIX_CMD_PAYMENT)
-        r = requests.post(const.GOPAY_NEW_PAYMENT_URL_TEST, data=cmd, verify=VERIFY_SSL)
+        r = requests.post(const.GOPAY_NEW_PAYMENT_URL, data=cmd, verify=VERIFY_SSL)
 
         if r.status_code != 200:
             raise utils.ValidationException(u'wrong status code: %s' % r.status_code)
@@ -34,7 +34,7 @@ class Payment(object):
         concat_cmd = self.concat(utils.Concat.PAYMENT_STATUS, cmd)
         cmd['encryptedSignature'] = self.crypt.encrypt(concat_cmd)
         cmd = utils.prefix_command_keys(cmd, prefix=const.PREFIX_CMD_PAYMENT_RESULT)
-        r = requests.post(const.GOPAY_PAYMENT_STATUS_URL_TEST, data=cmd, verify=VERIFY_SSL)
+        r = requests.post(const.GOPAY_PAYMENT_STATUS_URL, data=cmd, verify=VERIFY_SSL)
         #        print r.content
         if r.status_code != 200:
             raise utils.ValidationException(u'wrong status code: %s' % r.status_code)

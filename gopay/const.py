@@ -9,14 +9,6 @@ FAILED = "FAILED"
 CALL_COMPLETED = "CALL_COMPLETED"
 UNKNOWN = "UNKNOWN"
 
-PAYMENT_COMMAND = {
-    'successURL': 'http://tolary.cz',
-    'failedURL': 'http://tolary.cz',
-    'productName': 'test',
-    'eshopGoId': settings.GOPAY_ESHOP_GOID,
-    'variableSymbol': '235',
-    'totalPrice': 100,
-    }
 
 PREFIX_CMD_PAYMENT = 'paymentCommand.'
 PREFIX_CMD_PAYMENT_RESULT = 'paymentSessionInfo.'
@@ -26,6 +18,15 @@ GOPAY_NEW_PAYMENT_URL_TEST = 'https://testgw.gopay.cz/vytvorit-platbu'
 GOPAY_REDIRECT_URL_TEST = 'https://testgw.gopay.cz/zaplatit-plna-integrace'
 GOPAY_PAYMENT_STATUS_URL_TEST = 'https://testgw.gopay.cz/stav-platby-gw2'
 
-GOPAY_NEW_PAYMENT_URL = 'https://gate.gopay.cz/vytvorit-platbu'
-GOPAY_REDIRECT_URL = 'https://gate.gopay.cz/zaplatit-plna-integrace'
-GOPAY_PAYMENT_STATUS_URL = 'https://gate.gopay.cz/stav-platby-gw2'
+GOPAY_NEW_PAYMENT_URL_PRODUCTION = 'https://gate.gopay.cz/vytvorit-platbu'
+GOPAY_REDIRECT_URL_PRODUCTION = 'https://gate.gopay.cz/zaplatit-plna-integrace'
+GOPAY_PAYMENT_STATUS_URL_PRODUCTION = 'https://gate.gopay.cz/stav-platby-gw2'
+
+GOPAY_NEW_PAYMENT_URL = GOPAY_NEW_PAYMENT_URL_PRODUCTION
+GOPAY_REDIRECT_URL = GOPAY_REDIRECT_URL_PRODUCTION
+GOPAY_PAYMENT_STATUS_URL = GOPAY_PAYMENT_STATUS_URL_PRODUCTION
+
+if settings.GOPAY_TESTING_MODE:
+    GOPAY_NEW_PAYMENT_URL = GOPAY_NEW_PAYMENT_URL_TEST
+    GOPAY_REDIRECT_URL = GOPAY_REDIRECT_URL_TEST
+    GOPAY_PAYMENT_STATUS_URL = GOPAY_PAYMENT_STATUS_URL_TEST
