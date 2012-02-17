@@ -39,6 +39,12 @@ Its' signature is
 * request - django request object
 * paid_ok - whether the payment was really finished and money were transfered
 * payment_details - dict containing payment details as returned from GOPAY, see GOPAY integration manual 13.7
-* type - which url this was called from ('notification'/ 'success' / 'failure')
+* type - which url this was called from ('notification', 'success', 'failure')
 * paymentSessionId - gopay session id
 * variableSymbol - variable symbol
+
+This method must return HttpResponse. Reference implementation in gopay.utils.notification_callback end like this:
+
+    return render(request, "gopay/%s.html" % type, locals())
+
+The templates gopay/('notification', 'success', 'failure').html are provided. So overriding them is probably easiest.
