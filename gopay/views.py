@@ -26,14 +26,14 @@ def common_view(request, type):
     p = Payment()
     try:
         p.payment_status_notification_validation(payment_data)
-        pass
     except Exception, e:
         return HttpResponseForbidden(str(e))
 
-    paid_ok, payment_details = p.verify_payment_status(
-        payment_data['paymentSessionId']) #TODO this is maybe not necessary for notification only call
-    return callback_notification_function(request, paid_ok, payment_details, type, payment_data['paymentSessionId'],
-        payment_data['variableSymbol'])
+    #TODO this is maybe not necessary for notification only call
+    paid_ok, payment_details = p.verify_payment_status(payment_data['paymentSessionId'])
+
+    return callback_notification_function(request=request, paid_ok=paid_ok, payment_details=payment_details, type=type,
+        paymentSessionId=payment_data['paymentSessionId'], variableSymbol=payment_data['variableSymbol'])
 
 
 @login_required
