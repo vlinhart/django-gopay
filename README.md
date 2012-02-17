@@ -29,7 +29,19 @@ It's necessary to set several constants in settings.py:
     optional is:
     GOPAY_VERIFY_SSL = False #if you want the ssl cert of gopay to be checked ala browser, set it to True
 
-###More about GOPAY_NOTIFICATION_CALLBACK
+##Usage
+Now if you want to create a new payment allowing customer to pay for goods, do this in your view:
+
+    from gopay import gopay_http
+
+    payment = gopay_http.Payment()
+    session_id = payment.create_payment(productName='CHEESBURGER', variableSymbol='VS', totalPriceInCents=1000)
+    redirect_url = payment.get_redirect_url(session_id)
+    return redirect(redirect_url)
+
+The payment will be created and customer redirected to GOPAY.
+
+####More about GOPAY_NOTIFICATION_CALLBACK
 You need to create this method to process the successfull payment/failure/notification from GOPAY. It's called
 in these three situations after the caller was verified. You should process the payment in this function.
 Its' signature is
@@ -43,7 +55,7 @@ Its' signature is
 * paymentSessionId - gopay session id
 * variableSymbol - variable symbol
 
-This method must return HttpResponse. Reference implementation in gopay.utils.notification_callback end like this:
+This method must return HttpResponse. Reference implementation in gopay.utils.notification_callback ends like this:
 
     return render(request, "gopay/%s.html" % type, locals())
 
