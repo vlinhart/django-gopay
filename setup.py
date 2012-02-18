@@ -14,7 +14,7 @@ setup(
     name = "django-gopay",
     version = "0.1",
     url = 'https://github.com/vlinhart/django-gopay',
-	download_url = 'https://github.com/vlinhart/django-gopay/downloads',
+    download_url = 'https://github.com/vlinhart/django-gopay/downloads',
     license = 'BSD',
     description = "Django app to ease gopay payment integration for weary developer.",
     author = 'Vladimir Linhart',
@@ -22,6 +22,7 @@ setup(
     packages = find_packages(),
     include_package_data = True,
     zip_safe = False,
+    install_requires = ['requests','pycrypto',],
     classifiers = [
         'Development Status :: Alpha',
         'Framework :: Django',
