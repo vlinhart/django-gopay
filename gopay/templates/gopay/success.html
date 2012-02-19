@@ -4,6 +4,11 @@
     <title></title>
 </head>
 <body>
-success - {{ transaction }}
+    {% if paid_ok %}
+        <h1>success</h1>
+    {% else %}
+        <h1>waiting for confirmation</h1>
+        <p>you have probably used offline payment</p>
+    {% endif %}
 </body>
 </html>

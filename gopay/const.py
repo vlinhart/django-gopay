@@ -9,6 +9,23 @@ FAILED = "FAILED"
 CALL_COMPLETED = "CALL_COMPLETED"
 UNKNOWN = "UNKNOWN"
 
+PAYMENT_METHODS = set((
+    'eu_mb_a',
+    'eu_mb_b',
+    'eu_mb_w',
+    'SUPERCASH',
+    'cz_sms',
+    'cz_kb',
+    'cz_rb',
+    'cz_mb',
+    'cz_ge',
+    'cz_fb',
+    'cz_vb',
+    'cz_bank',
+    'cz_gp_w',
+    'cz_gp_c',
+))
+
 
 PREFIX_CMD_PAYMENT = 'paymentCommand.'
 PREFIX_CMD_PAYMENT_RESULT = 'paymentSessionInfo.'

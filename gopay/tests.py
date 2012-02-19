@@ -103,9 +103,12 @@ class TestGoPay(TestCase):
     def test_payment(self):
         #OK DUNNO how to test this
         p = Payment()
-        paymentSessionId = p.create_payment('test', 'VS test', 10)
+        paymentSessionId = p.create_payment('test', 'VS test', 10, paymentChannels=const.PAYMENT_METHODS-set(['SUPERCASH']))
         self.assertTrue(paymentSessionId)
         print 'paymentSessionId', paymentSessionId
-        print 'GOTO dis url ', utils.create_redirect_url(paymentSessionId)
-    #    p.verify_payment_status('3000842403')
+        print 'GOTO url', utils.create_redirect_url(paymentSessionId)
+
+    def dtest_payment_verification(self):
+        p = Payment()
+        print p.verify_payment_status('3000859056')
 

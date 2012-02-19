@@ -13,8 +13,8 @@ class Payment(object):
         self.crypt = utils.Crypt(secret=secret)
         self.concat = utils.Concat(secret=secret)
 
-    def create_payment(self, productName, variableSymbol, totalPriceInCents):
-        cmd = self._create_payment_cmd(productName, variableSymbol, totalPriceInCents)
+    def create_payment(self, productName, variableSymbol, totalPriceInCents, paymentChannels=const.PAYMENT_METHODS):
+        cmd = self._create_payment_cmd(productName, variableSymbol, totalPriceInCents, paymentChannels)
         payment_string = self.concat(utils.Concat.PAYMENT, cmd)
         cmd['encryptedSignature'] = self.crypt.encrypt(payment_string)
         cmd = utils.prefix_command_keys(cmd, const.PREFIX_CMD_PAYMENT)
@@ -51,7 +51,7 @@ class Payment(object):
 
         utils.CommandsValidator(xml_response=None, data=params).payment_notification()
 
-    def _create_payment_cmd(self, productName, variableSymbol, totalPrice):
+    def _create_payment_cmd(self, productName, variableSymbol, totalPrice, paymentChannels):
         return {
             'successURL': settings.GOPAY_SUCCESS_URL,
             'failedURL': settings.GOPAY_FAILED_URL,
@@ -59,6 +59,7 @@ class Payment(object):
             'eshopGoId': settings.GOPAY_ESHOP_GOID,
             'variableSymbol': variableSymbol,
             'totalPrice': totalPrice, # in cents
+            'paymentChannels': ",".join(paymentChannels),
             }
 
     def get_redirect_url(self, paymentSessionId):

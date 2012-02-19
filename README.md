@@ -39,7 +39,11 @@ Now if you want to create a new payment allowing customer to pay for goods, do t
     redirect_url = payment.get_redirect_url(session_id)
     return redirect(redirect_url)
 
-The payment will be created and customer redirected to GOPAY.
+The payment will be created and customer redirected to GOPAY. If you want to restrict which payment method is used,
+by default all of them. You can either enumerate them or say which ones you don't want (SUPERCASH):
+
+    payment.create_payment(productName='CHEESBURGER', variableSymbol='VS', totalPriceInCents=1000,
+                           paymentChannels=const.PAYMENT_METHODS-set(['SUPERCASH',]))
 
 ####More about GOPAY_NOTIFICATION_CALLBACK
 You need to create this method to process the successfull payment/failure/notification from GOPAY. It's called
