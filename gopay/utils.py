@@ -6,7 +6,6 @@ from binascii import unhexlify
 import xml.etree.ElementTree as ET
 import urllib
 from django.conf import settings
-from django.http import HttpResponse
 from django.shortcuts import render
 import const
 

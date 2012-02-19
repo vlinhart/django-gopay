@@ -6,6 +6,8 @@ from django.conf import settings
 
 VERIFY_SSL = getattr(settings, 'GOPAY_VERIFY_SSL', False)
 
+WRONG_STATUS_MSG = u'wrong response status code: %s, 200 expected'
+
 class Payment(object):
     def __init__(self, secret=settings.GOPAY_SECRET):
         self.crypt = utils.Crypt(secret=secret)
@@ -19,7 +21,7 @@ class Payment(object):
         r = requests.post(const.GOPAY_NEW_PAYMENT_URL, data=cmd, verify=VERIFY_SSL)
 
         if r.status_code != 200:
-            raise utils.ValidationException(u'wrong status code: %s' % r.status_code)
+            raise utils.ValidationException(WRONG_STATUS_MSG % r.status_code)
         utils.CommandsValidator(r.content).payment()
 
         response = utils.parse_xml_to_dict(r.content)
@@ -37,7 +39,7 @@ class Payment(object):
         r = requests.post(const.GOPAY_PAYMENT_STATUS_URL, data=cmd, verify=VERIFY_SSL)
         #        print r.content
         if r.status_code != 200:
-            raise utils.ValidationException(u'wrong status code: %s' % r.status_code)
+            raise utils.ValidationException(WRONG_STATUS_MSG % r.status_code)
         utils.CommandsValidator(r.content).payment_status()
         response = utils.parse_xml_to_dict(r.content)
         #        print response
@@ -61,16 +63,4 @@ class Payment(object):
 
     def get_redirect_url(self, paymentSessionId):
         return utils.create_redirect_url(paymentSessionId)
-
-
-def test():
-    p = Payment()
-
-    paymentSessionId = p.create_payment('test', 'VS test', 1)
-    print 'paymentSessionId', paymentSessionId
-    print utils.create_redirect_url(paymentSessionId)
-#    p.verify_payment_status('3000842403')
-
-if __name__ == '__main__':
-    test()
 
